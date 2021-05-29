@@ -6,6 +6,14 @@ const File = require('../models/File');
 User.hasMany(File);
 File.belongsTo(User);
 
+User.sync()
+.then(() => {
+  console.log("table creation success...")
+})
+.catch(err => {
+  console.log(err);
+})
+
 const router = Router();
 
 router.post('/', async (req, res) => {

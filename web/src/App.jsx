@@ -1,52 +1,75 @@
-import "./App.css";
-import { useState, useEffect } from "react";
+import "./App.css"
+import { useState, useEffect } from "react"
 
 function App() {
-  const [file, setFile] = useState(null);
-  const [email, setEmail] = useState('');
+  const [file, setFile] = useState(null)
+  const [email, setEmail] = useState('')
   const [error, setError] = useState([])
+  const [fileVal, setFileVal] = useState('');
+
+  function validateEmail(email) {
+    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    return re.test(String(email).toLowerCase())
+  }
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-    const ext = e.target.files[0].name.lastIndexOf('.');
-    console.log(e.target.files[0].name.substring(ext) === '.pdf')
-    if(
-      e.target.files[0].name.substring(ext) == '.pdf' ||
-      e.target.files[0].name.substring(ext) == '.txt' ||
-      e.target.files[0].name.substring(ext) == '.xslt' ||
-      e.target.files[0].name.substring(ext) == '.xsl' ||
-      e.target.files[0].name.substring(ext) == '.csv'
-    ) {
-      setError([])
-    } else {
-      setError([...error,'file extention not supported..'])
+    try {  
+      setFileVal(e.target.value)
+      setFile(e.target.files[0])
+      const ext = e.target.files[0].name.lastIndexOf('.')
+      console.log(e.target.files[0].name.substring(ext) === '.pdf')
+      if(
+        e.target.files[0].name.substring(ext) == '.pdf' ||
+        e.target.files[0].name.substring(ext) == '.txt' ||
+        e.target.files[0].name.substring(ext) == '.xslt' ||
+        e.target.files[0].name.substring(ext) == '.xsl' ||
+        e.target.files[0].name.substring(ext) == '.csv' ||
+        e.target.files[0].name.substring(ext) == '.xlsx' ||
+        e.target.files[0].name.substring(ext) == '.xlsm' ||
+        e.target.files[0].name.substring(ext) == '.xlsb' ||
+        e.target.files[0].name.substring(ext) == '.xltx'
+      ) {
+        setError([])
+      } else {
+        setError([...error,'file extention not supported..'])
+      }
+    } catch(err) {
+      alert("oops... please check the file you selected...")
     }
   }
   console.log(error)
+
+  // function to upload
   const uploadFile = async () => {
     setError([]);
     if(file == null) {
-      setError([...error,'no file error'])
-      return;
+      setError(['no file is selected'])
+      return
     }
     if(email.trim().length === 0) {
-      setError([...error,'email is empty']);
-      return;
+      setError(['email is empty'])
+      return
+    }
+    if(!validateEmail(email)) {
+      setError(['incorrect email..'])
+      return
     }
     if(error.length === 0) {  
-      alert('send')
-      const formData = new FormData();
-      formData.append("file", file);
+      const formData = new FormData()
+      formData.append("file", file)
       try {
         const res = await fetch(`http://localhost:5000/upload?email=${email}`, {
           method: "POST",
           body: formData
         });
+        alert("File Uploaded...")
         setEmail('')
         setFile(null)
+        setFileVal('')
         const image_resp = await res.json();
       } catch (err) {
-        console.log("error  ::: ", err);
+        console.log("oops... culdn't upload file... check your network..")
+        console.log("error  ::: ", err)
       }
     }
   };
@@ -59,6 +82,7 @@ function App() {
           <label htmlFor="email">Email : </label>
           <input 
             id="email" 
+            className="form-control"
             onChange={(e) => setEmail(e.target.value)} 
             value={email} 
             type="email" 
@@ -69,20 +93,23 @@ function App() {
           <input
             onChange={handleFileChange}
             id="file-upload"
-            className="file"
+            className="file form-control"
             type="file"
-            accept=".pdf, .csv, .txt, .xsl, .xslt"
+            accept=".pdf, .csv, .txt, .xsl, .xslt, .xlsx, .xlsm, .xlsb, .xltx"
+            value={fileVal}
           />
         </div>
         <div>
-          <button className="w-100" onClick={uploadFile}>Upload</button>
+          <button className="w-100 btn btn-primary my-3" onClick={uploadFile}>Upload</button>
         </div>
         {
         error.length > 0 
         ?
           error.map(item => {
             return(
-              <small className="error" key={item}>{item}</small>
+              <div className="alert alert-danger" key={item} role="alert">
+                {item}
+              </div>
             )
           })
         : null

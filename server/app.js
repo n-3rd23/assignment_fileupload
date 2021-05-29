@@ -24,5 +24,5 @@ app.get("/", (req, res) => {
 app.use('/upload', require('./routes/uploads'));
 
 app.listen(5000, () => {
-  console.log("listening to port 5000...");
+  console.log("server listening on http://localhost:5000..");
 });
