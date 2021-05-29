@@ -6,6 +6,7 @@ function App() {
   const [email, setEmail] = useState('')
   const [error, setError] = useState([])
   const [fileVal, setFileVal] = useState('');
+  const [extentionError, setExtentionError] = useState(null)
 
   function validateEmail(email) {
     const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -31,7 +32,7 @@ function App() {
       ) {
         setError([])
       } else {
-        setError([...error,'file extention not supported..'])
+        setError(['file extention not supported..'])
       }
     } catch(err) {
       alert("oops... please check the file you selected...")
@@ -43,7 +44,7 @@ function App() {
   const uploadFile = async () => {
     setError([]);
     if(file == null) {
-      setError(['no file is selected'])
+      setError(['please select a file'])
       return
     }
     if(email.trim().length === 0) {
@@ -51,7 +52,7 @@ function App() {
       return
     }
     if(!validateEmail(email)) {
-      setError(['incorrect email..'])
+      setError(['invalid email..'])
       return
     }
     if(error.length === 0) {  
@@ -68,22 +69,24 @@ function App() {
         setFileVal('')
         const image_resp = await res.json();
       } catch (err) {
-        console.log("oops... culdn't upload file... check your network..")
+        alert("oops... culdn't upload file... check your network..")
         console.log("error  ::: ", err)
       }
     }
   };
 
   return (
-    <div className="App">
-      <div className="wrapper">
+    <div className="App bg-secondary">
+      <div className="p-3 border border-primary bg-light rounded">
         <h3 className="title">Upload File (.pdf, .csv, excel files)</h3>
         <div>
           <label htmlFor="email">Email : </label>
           <input 
             id="email" 
             className="form-control"
-            onChange={(e) => setEmail(e.target.value)} 
+            onChange={(e) => {
+              setEmail(e.target.value)
+            }} 
             value={email} 
             type="email" 
            />
